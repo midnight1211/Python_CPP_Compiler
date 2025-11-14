@@ -1,0 +1,35 @@
+Upcoming Improvements:
+
+ - Adding support for reprocessor directives:
+    - #include
+    - #if
+    - #ifdef
+    - #ifndef
+    - etc.
+
+- C++23 and Beyond Support
+
+- Object and Bytecode Generation
+
+--- Upcoming Projects ---
+1. Creating a Virtual Machine that emulates ARM 64 architecture that can support an OS
+2. Programming Language Translator
+  a. Translates Python to C++ as an example.
+  b. Will have the ability to translate the following languages:
+    I. C++
+    II. Java
+    III. Python
+    IV. JavaScript
+    V. Go
+    VI. C
+    VII. More to come.
+3. Advanced Math Calculator --- My capstone required for Youngstown State University's B.S. in Computer Science
+  a. Calculate integrals, derivatives, limits
+  b. Applies concepts from courses including Calculus 1, 2, and 3, Linear Algebra, Applied Mathematics, etc.
+  c. Backend will be C++ and front end will be Java, with a JavaFX GUI
+4. Data Structures and Algorithms Library (C++)
+  a. Implementing the common data structures
+    I. Trees
+    II. Lists
+    III. Queues
+    IV. Graphs
