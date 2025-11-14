@@ -1,0 +1,296 @@
+C++ Grammar Specification (Simplified)
+======================================
+
+This is a simplified EBNF grammar for the C++ subset supported by this parser.
+
+NOTATION:
+  ::=     - is defined as
+  |       - or
+  [ ]     - optional (0 or 1)
+  { }     - repetition (0 or more)
+  ( )     - grouping
+  CAPS    - terminal tokens
+  lower   - non-terminal rules
+
+PROGRAM STRUCTURE
+-----------------
+program ::= { declaration }
+
+declaration ::= namespace_declaration
+              | using_declaration
+              | template_declaration
+              | class_declaration
+              | enum_declaration
+              | typedef_declaration
+              | function_declaration
+              | variable_declaration
+
+NAMESPACES
+----------
+namespace_declaration ::= NAMESPACE IDENTIFIER '{' { declaration } '}'
+
+using_declaration ::= USING [ NAMESPACE ] qualified_identifier ';'
+
+qualified_identifier ::= IDENTIFIER { '::' IDENTIFIER }
+
+TEMPLATES
+---------
+template_declaration ::= TEMPLATE '<' template_parameters '>' declaration
+
+template_parameters ::= template_parameter { ',' template_parameter }
+
+template_parameter ::= ( TYPENAME | CLASS ) IDENTIFIER [ '=' type ]
+
+CLASSES
+-------
+class_declaration ::= ( CLASS | STRUCT ) IDENTIFIER
+                      [ ':' base_class_list ]
+                      '{' { class_member } '}' ';'
+
+base_class_list ::= base_class { ',' base_class }
+
+base_class ::= [ access_specifier ] IDENTIFIER
+
+class_member ::= access_specifier ':'
+               | constructor_declaration
+               | destructor_declaration
+               | function_declaration
+               | variable_declaration
+
+access_specifier ::= PUBLIC | PRIVATE | PROTECTED
+
+constructor_declaration ::= IDENTIFIER '(' parameter_list ')'
+                           [ ':' initializer_list ]
+                           ( compound_statement | ';' )
+
+destructor_declaration ::= '~' IDENTIFIER '(' ')'
+                          ( compound_statement | ';' )
+
+initializer_list ::= member_initializer { ',' member_initializer }
+
+member_initializer ::= IDENTIFIER '(' expression ')'
+
+ENUMS
+-----
+enum_declaration ::= ENUM [ CLASS | STRUCT ] IDENTIFIER
+                     '{' enumerator_list '}' ';'
+
+enumerator_list ::= enumerator { ',' enumerator }
+
+enumerator ::= IDENTIFIER [ '=' expression ]
+
+TYPEDEFS
+--------
+typedef_declaration ::= TYPEDEF type IDENTIFIER ';'
+
+FUNCTIONS
+---------
+function_declaration ::= [ storage_specifier ] type IDENTIFIER
+                        '(' parameter_list ')'
+                        [ CONST ] [ OVERRIDE ] [ FINAL ]
+                        ( compound_statement | ';' )
+
+storage_specifier ::= STATIC | EXTERN | INLINE | VIRTUAL | CONSTEXPR
+
+parameter_list ::= [ parameter { ',' parameter } ]
+
+parameter ::= type [ IDENTIFIER ] [ '=' expression ]
+
+VARIABLES
+---------
+variable_declaration ::= [ storage_specifier ] type IDENTIFIER
+                        [ '=' expression ] ';'
+
+TYPES
+-----
+type ::= [ CONST ] [ VOLATILE ] [ UNSIGNED | SIGNED ] type_base
+         { '*' [ CONST ] | '&' }
+
+type_base ::= INT | CHAR | FLOAT | DOUBLE | VOID | BOOL
+            | SHORT | LONG [ LONG ]
+            | AUTO
+            | IDENTIFIER
+
+STATEMENTS
+----------
+statement ::= compound_statement
+            | expression_statement
+            | return_statement
+            | if_statement
+            | while_statement
+            | do_while_statement
+            | for_statement
+            | break_statement
+            | continue_statement
+            | switch_statement
+            | try_statement
+            | throw_statement
+            | declaration_statement
+
+compound_statement ::= '{' { statement } '}'
+
+expression_statement ::= expression ';'
+
+return_statement ::= RETURN [ expression ] ';'
+
+if_statement ::= IF '(' expression ')' statement [ ELSE statement ]
+
+while_statement ::= WHILE '(' expression ')' statement
+
+do_while_statement ::= DO statement WHILE '(' expression ')' ';'
+
+for_statement ::= FOR '(' [ statement ] ';' [ expression ] ';'
+                  [ expression ] ')' statement
+
+break_statement ::= BREAK ';'
+
+continue_statement ::= CONTINUE ';'
+
+switch_statement ::= SWITCH '(' expression ')' '{' { case_statement } '}'
+
+case_statement ::= ( CASE expression | DEFAULT ) ':' { statement }
+
+try_statement ::= TRY compound_statement { catch_clause }
+
+catch_clause ::= CATCH '(' type [ IDENTIFIER ] ')' compound_statement
+
+throw_statement ::= THROW [ expression ] ';'
+
+EXPRESSIONS (by precedence, highest to lowest)
+-----------------------------------------------
+expression ::= assignment_expression
+
+assignment_expression ::= ternary_expression
+                         [ assignment_operator assignment_expression ]
+
+assignment_operator ::= '=' | '+=' | '-=' | '*=' | '/=' | '%='
+                      | '&=' | '|=' | '^=' | '<<=' | '>>='
+
+ternary_expression ::= logical_or_expression
+                      [ '?' expression ':' ternary_expression ]
+
+logical_or_expression ::= logical_and_expression
+                         { '||' logical_and_expression }
+
+logical_and_expression ::= bitwise_or_expression
+                          { '&&' bitwise_or_expression }
+
+bitwise_or_expression ::= bitwise_xor_expression
+                         { '|' bitwise_xor_expression }
+
+bitwise_xor_expression ::= bitwise_and_expression
+                          { '^' bitwise_and_expression }
+
+bitwise_and_expression ::= equality_expression
+                          { '&' equality_expression }
+
+equality_expression ::= relational_expression
+                       { ( '==' | '!=' ) relational_expression }
+
+relational_expression ::= shift_expression
+                         { ( '<' | '>' | '<=' | '>=' | '<=>' ) shift_expression }
+
+shift_expression ::= additive_expression
+                    { ( '<<' | '>>' ) additive_expression }
+
+additive_expression ::= multiplicative_expression
+                       { ( '+' | '-' ) multiplicative_expression }
+
+multiplicative_expression ::= unary_expression
+                             { ( '*' | '/' | '%' ) unary_expression }
+
+unary_expression ::= postfix_expression
+                   | ( '++' | '--' | '+' | '-' | '!' | '~' ) unary_expression
+                   | cast_expression
+                   | sizeof_expression
+                   | new_expression
+                   | delete_expression
+
+cast_expression ::= ( STATIC_CAST | DYNAMIC_CAST | CONST_CAST | REINTERPRET_CAST )
+                    '<' type '>' '(' expression ')'
+
+sizeof_expression ::= SIZEOF '(' type ')'
+
+new_expression ::= NEW [ '[' [ expression ] ']' ] type
+                   [ '(' argument_list ')' ]
+
+delete_expression ::= DELETE [ '[' ']' ] unary_expression
+
+postfix_expression ::= primary_expression
+                      { postfix_operator }
+
+postfix_operator ::= '++' | '--'
+                   | '(' [ argument_list ] ')'
+                   | '[' expression ']'
+                   | '.' IDENTIFIER
+                   | '->' IDENTIFIER
+
+primary_expression ::= INTEGER
+                     | FLOAT_LITERAL
+                     | CHAR_LITERAL
+                     | STRING_LITERAL
+                     | TRUE | FALSE
+                     | NULLPTR
+                     | THIS
+                     | IDENTIFIER
+                     | '(' expression ')'
+
+argument_list ::= expression { ',' expression }
+
+OPERATOR PRECEDENCE (highest to lowest)
+----------------------------------------
+1. Postfix:        () [] . -> ++ --
+2. Prefix:         ++ -- + - ! ~ * & sizeof new delete casts
+3. Multiplicative: * / %
+4. Additive:       + -
+5. Shift:          << >>
+6. Relational:     < <= > >= <=>
+7. Equality:       == !=
+8. Bitwise AND:    &
+9. Bitwise XOR:    ^
+10. Bitwise OR:    |
+11. Logical AND:   &&
+12. Logical OR:    ||
+13. Ternary:       ? :
+14. Assignment:    = += -= *= /= %= &= |= ^= <<= >>=
+
+TOKENS
+------
+Keywords:
+  if, else, switch, case, default, while, do, for, break, continue, return, goto
+  void, bool, char, int, short, long, signed, unsigned, float, double
+  const, volatile, mutable, constexpr, consteval, constinit
+  auto, register, static, extern, thread_local
+  class, struct, union, enum, public, private, protected, friend
+  virtual, override, final, this, operator, sizeof, typeid, typename
+  new, delete, try, catch, throw, noexcept
+  template, export, namespace, using
+  static_cast, dynamic_cast, const_cast, reinterpret_cast
+  typedef, asm, explicit, inline, static_assert, decltype
+  alignas, alignof, nullptr, concept, requires
+  co_await, co_return, co_yield, true, false
+
+Operators:
+  + - * / % ++ --
+  = += -= *= /= %= &= |= ^= <<= >>=
+  == != < > <= >= <=>
+  && || !
+  & | ^ ~ << >>
+  . -> :: .* ->*
+
+Delimiters:
+  ( ) { } [ ] ; , : ? ...
+
+Literals:
+  INTEGER        - 42, 0xFF, 0b1010, 052, 1'000'000
+  FLOAT_LITERAL  - 3.14, 1.5e10, 2.5e-5, 3.14f
+  CHAR_LITERAL   - 'a', '\n', '\t'
+  STRING_LITERAL - "hello", "world\n"
+  IDENTIFIER     - variable_name, function_name, ClassName
+
+NOTES
+-----
+- This grammar is simplified and doesn't cover all C++ features
+- Some context-sensitive aspects (like template angle brackets) are handled in the parser
+- The grammar is designed to be parsable with recursive descent
+- Preprocessor directives are handled separately and not part of this grammar
